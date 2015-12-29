@@ -23,22 +23,31 @@ import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener {
 
+    MainCellAsyncTask mainCellTask;
+    NeighborCellsAsyncTask neighborCellsTask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        System.out.println("Start main cell task!");
-        new MainCellAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"");
-        System.out.println("Start neighbor cells task!");
-        new NeighborCellsAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"");
+        getSupportActionBar().setIcon(R.mipmap.ic_launcher);
+
+        mainCellTask = new MainCellAsyncTask(this);
+        mainCellTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
+
+        neighborCellsTask = new NeighborCellsAsyncTask(this);
+        neighborCellsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"");
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+
         return true;
     }
 
@@ -50,7 +59,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_refresh) {
+            mainCellTask.refreshMainCell();
+            neighborCellsTask.refreshNeighborCells();
             return true;
         }
 

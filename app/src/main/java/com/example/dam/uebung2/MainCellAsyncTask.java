@@ -106,7 +106,7 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
 
 
 
-    private void refreshMainCell() {
+    public void refreshMainCell() {
         GsmCellLocation cellLocation = (GsmCellLocation) telephonyManager.getCellLocation();
         // cell id
         int cid = cellLocation.getCid();

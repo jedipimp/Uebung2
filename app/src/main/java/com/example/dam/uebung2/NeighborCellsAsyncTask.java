@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.telephony.NeighboringCellInfo;
 import android.telephony.TelephonyManager;
-import android.telephony.gsm.GsmCellLocation;
 import android.util.Pair;
 import android.widget.ListView;
 
@@ -36,7 +35,7 @@ public class NeighborCellsAsyncTask extends AsyncTask<String, Void, String> {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        updateNeighbors();
+                        refreshNeighborCells();
                     }
                 });
 
@@ -61,7 +60,7 @@ public class NeighborCellsAsyncTask extends AsyncTask<String, Void, String> {
 
     }
 
-    private void updateNeighbors() {
+    public void refreshNeighborCells() {
         listItems.clear();
 
         // get all neighnoring cells
