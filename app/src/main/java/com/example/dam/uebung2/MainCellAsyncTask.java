@@ -1,17 +1,25 @@
 package com.example.dam.uebung2;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
+import android.text.AndroidCharacter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.dam.uebung2.MainActivity;
 import com.example.dam.uebung2.R;
+
+import org.w3c.dom.Text;
 
 public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
     TelephonyManager telephonyManager;
@@ -56,13 +64,42 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
     protected void onProgressUpdate(Void... values) {
     }
 
+    @TargetApi(value = 23)
     private class MyPhoneStateListener extends PhoneStateListener {
         /* Get the Signal strength from the provider, each tiome there is an update */
         @Override
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
             super.onSignalStrengthsChanged(signalStrength);
-            TextView temp = (TextView) activity.findViewById(R.id.signalStrenghtTextView);
-            temp.setText(String.valueOf(signalStrength.getGsmSignalStrength()));
+
+            TextView signalText = (TextView) activity.findViewById(R.id.mainCellSignalStrenghtText);
+            int signalStrengthASU = signalStrength.getGsmSignalStrength();
+            int signalStrengthdBm = 2*signalStrengthASU - 113;
+
+            signalText.setText(signalStrengthASU + " ASU\n" +
+                    signalStrengthdBm + " dBm");
+
+            ImageView image = (ImageView) activity.findViewById(R.id.mainCellSignalStrengthImage);
+            int level = signalStrength.getLevel();
+
+            switch (level) {
+                // poor quality
+                case 0:
+                    image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_0_bar_black_24dp));
+                    break;
+                case 1:
+                    image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_1_bar_black_24dp));
+                    break;
+                case 2:
+                    image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_2_bar_black_24dp));
+                    break;
+                case 3:
+                    image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_3_bar_black_24dp));
+                    break;
+                // excellent quality
+                case 4:
+                    image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_4_bar_black_24dp));
+                    break;
+            }
         }
 
     }
@@ -71,26 +108,32 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
 
     private void refreshMainCell() {
         GsmCellLocation cellLocation = (GsmCellLocation) telephonyManager.getCellLocation();
-
-        String networkOperator = telephonyManager.getNetworkOperator();
-        String mcc = networkOperator.substring(0, 3);
-        String mnc = networkOperator.substring(3);
-
+        // cell id
         int cid = cellLocation.getCid();
+        // location area code
         int lac = cellLocation.getLac();
 
+        String networkOperator = telephonyManager.getNetworkOperator();
+        // mobile country code
+        String mccNo = networkOperator.substring(0, 3);
+        String mccName = telephonyManager.getNetworkCountryIso().toUpperCase();
+        // mobile network code
+        String mnc = networkOperator.substring(3);
 
-        Button myButton = (Button) activity.findViewById(R.id.mainCellButton);
+        ConnectivityManager conMan = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+        // cell type (EDGE, UMTS, LTE, ...
+        int cellTypeNo = telephonyManager.getNetworkType();
+        String cellTypeName = conMan.getActiveNetworkInfo().getSubtypeName();
 
-        String displayText = "Main Cell ID is  " + cid + "\n" +
-                "Cell Type : " + telephonyManager.getNetworkType() + "\n" + // 2 for umts 3 for something else
-                "Mobile Country Code :" + telephonyManager.getNetworkCountryIso() + "\n" +
-                "LAC : " + lac + "\n" +
-                "MCC: " + mcc + "\n" +
-                "MNC " + mnc;
+        TextView mainCellText = (TextView) activity.findViewById(R.id.mainCellIdText);
 
-        System.out.println("updated main cell!");
-        myButton.setText(displayText);
+        String displayText = "Cell ID: " + cid + "\n" +
+                "Cell Type: " + cellTypeName + " (" + cellTypeNo + ")\n" +
+                "Mobile Country Code: " + mccName + " (" + mccNo + ")\n" +
+                "LAC: " + lac + "\n" +
+                "MNC: " + mnc;
+
+        mainCellText.setText(displayText);
     }
 
 }
