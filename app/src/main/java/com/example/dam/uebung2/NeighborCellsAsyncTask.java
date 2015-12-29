@@ -76,28 +76,17 @@ public class NeighborCellsAsyncTask extends AsyncTask<String, Void, String> {
                 int lac = neighboringCellInfo.getLac();
                 // Receive Signal Strength Indicator (range -100..0, closer to 0 means better signal quality)
                 int rssi = neighboringCellInfo.getRssi();
+                // primary scrambling code
+                int psc = neighboringCellInfo.getPsc();
 
                 String neighborCellInfo = "Cell ID: " + (cid == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : cid) + "\n" +
                         "Cell Type: " + (cellTypeInt == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : cellTypeInt) + "\n" +
                         "LAC: " + (lac == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : lac) + "\n" +
-                        "RSSI: " + (rssi == NeighboringCellInfo.UNKNOWN_RSSI ? "N/A" : rssi + " dBm");
-                ;
-                Integer signalLevel = 0;
+                        "PSC: " + (psc == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : psc);
 
-                // poor signal quality
-                if (rssi < -118)
-                    signalLevel = 0;
-                else if (rssi < -103)
-                    signalLevel = 1;
-                else if (rssi < -97)
-                    signalLevel = 2;
-                else if (rssi < -85)
-                    signalLevel = 3;
-                // good signal quality
-                else
-                    signalLevel = 4;
+                Integer signalLevel = CellInfoUtils.getSignalLevelFromRSSI(rssi);
 
-                Pair<String, Integer> pair = new Pair<String,Integer>(neighborCellInfo, signalLevel);
+                Pair<String, Integer> pair = new Pair<String,Integer>(neighborCellInfo, rssi);
                 listItems.add(pair);
             }
         }

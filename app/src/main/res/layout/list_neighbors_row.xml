@@ -14,14 +14,29 @@
             android:text="@+id/neighboringInfoText"
             android:id="@+id/neighboringInfoText" />
 
-        <ImageView
-            android:id="@+id/signalStrengthNeighborImage"
-            android:layout_width="50px"
-            android:layout_height="50px"
-            android:layout_gravity="right"
-            android:src="@mipmap/ic_signal_cellular_0_bar_black_24dp" >
-        </ImageView>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="end">
 
+            <ImageView
+                android:id="@+id/neighboringSignalImage"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end"
+                android:src="@mipmap/ic_signal_cellular_0_bar_black_24dp" >
+            </ImageView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@+id/neighboringInfoText"
+                android:id="@+id/neighboringSignalStrengthText"
+                android:layout_gravity="end"
+                android:textAlignment="textEnd"/>
+
+        </LinearLayout>
 
     </TableRow>
 

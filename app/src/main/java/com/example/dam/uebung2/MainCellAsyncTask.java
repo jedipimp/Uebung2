@@ -73,7 +73,7 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
 
             TextView signalText = (TextView) activity.findViewById(R.id.mainCellSignalStrenghtText);
             int signalStrengthASU = signalStrength.getGsmSignalStrength();
-            int signalStrengthdBm = 2*signalStrengthASU - 113;
+            int signalStrengthdBm = CellInfoUtils.ASUToDBM(signalStrengthASU);
 
             signalText.setText(signalStrengthASU + " ASU\n" +
                     signalStrengthdBm + " dBm");
@@ -103,8 +103,6 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
         }
 
     }
-
-
 
     public void refreshMainCell() {
         GsmCellLocation cellLocation = (GsmCellLocation) telephonyManager.getCellLocation();

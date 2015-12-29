@@ -32,30 +32,36 @@ public class CellInfoImageStrengthAdapter extends ArrayAdapter<Pair<String,Integ
             v = vi.inflate(R.layout.list_neighbors_row, null);
         }
 
-        TextView textView = (TextView) v.findViewById(R.id.neighboringInfoText);
-        ImageView image = (ImageView) v.findViewById(R.id.signalStrengthNeighborImage);
-        textView.setText(getItem(position).first);
+        TextView neighborCellInfoText = (TextView) v.findViewById(R.id.neighboringInfoText);
+        ImageView signalStrenghtImage = (ImageView) v.findViewById(R.id.neighboringSignalImage);
+        TextView signalStrenghtText = (TextView) v.findViewById(R.id.neighboringSignalStrengthText);
+
+        Integer signalStrengthdBm = getItem(position).second;
+
+        neighborCellInfoText.setText(getItem(position).first);
+        signalStrenghtText.setText(CellInfoUtils.DBMToASU(signalStrengthdBm) + " ASU\n" +
+                signalStrengthdBm + " dBm");
 
         // Change icon based on signalLevel
-        Integer signalLevel = getItem(position).second;
+        Integer signalLevel = CellInfoUtils.getSignalLevelFromRSSI(signalStrengthdBm);
 
         switch (signalLevel) {
             // poor quality
             case 0:
-                image.setImageDrawable(getContext().getResources().getDrawable(R.mipmap.ic_signal_cellular_0_bar_black_24dp));
+                signalStrenghtImage.setImageDrawable(getContext().getResources().getDrawable(R.mipmap.ic_signal_cellular_0_bar_black_24dp));
                 break;
             case 1:
-                image.setImageDrawable(getContext().getResources().getDrawable(R.mipmap.ic_signal_cellular_1_bar_black_24dp));
+                signalStrenghtImage.setImageDrawable(getContext().getResources().getDrawable(R.mipmap.ic_signal_cellular_1_bar_black_24dp));
                 break;
             case 2:
-                image.setImageDrawable(getContext().getResources().getDrawable(R.mipmap.ic_signal_cellular_2_bar_black_24dp));
+                signalStrenghtImage.setImageDrawable(getContext().getResources().getDrawable(R.mipmap.ic_signal_cellular_2_bar_black_24dp));
                 break;
             case 3:
-                image.setImageDrawable(getContext().getResources().getDrawable(R.mipmap.ic_signal_cellular_3_bar_black_24dp));
+                signalStrenghtImage.setImageDrawable(getContext().getResources().getDrawable(R.mipmap.ic_signal_cellular_3_bar_black_24dp));
                 break;
             // excellent quality
             case 4:
-                image.setImageDrawable(getContext().getResources().getDrawable(R.mipmap.ic_signal_cellular_4_bar_black_24dp));
+                signalStrenghtImage.setImageDrawable(getContext().getResources().getDrawable(R.mipmap.ic_signal_cellular_4_bar_black_24dp));
                 break;
         }
 
