@@ -20,12 +20,25 @@
         android:layout_centerHorizontal="true"
         android:id="@+id/linearLayout">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
-            android:id="@+id/signalStrenghtTextView" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="47dp"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Medium Text"
+                android:id="@+id/signalStrenghtTextView" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="61dp"
+                android:id="@+id/imageView"
+                android:src="@mipmap/ic_signal_cellular_0_bar_black_24dp" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
@@ -47,4 +60,5 @@
             android:id="@+id/neighboringCellsListView" />
 
     </LinearLayout>
+
 </RelativeLayout>
