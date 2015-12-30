@@ -84,8 +84,8 @@ public class NeighborCellsAsyncTask extends AsyncTask<String, Void, String> {
 
                 String neighborCellInfo = "Cell ID: " + (cid == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : cid) + "\n" +
                         "Cell Type: " + (cellTypeNo == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : cellTypeName + " (" + cellTypeNo + ")") + "\n" +
-                        "LAC: " + (lac == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : lac) + "\n" +
-                        "PSC: " + (psc == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : psc);
+                        "Location Area Code: " + (lac == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : lac) + "\n" +
+                        "Primary Scrambling Code: " + (psc == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : psc);
 
                 Integer signalLevel = CellInfoUtils.getSignalLevelFromRSSI(rssi);
 

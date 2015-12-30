@@ -107,7 +107,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         seconds = -1;
                         break;
                 }
-                
+
                 CellInfoUtils.setRefreshRateInSec(seconds);
             }
 

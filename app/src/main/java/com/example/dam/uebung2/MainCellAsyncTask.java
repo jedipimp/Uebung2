@@ -11,13 +11,15 @@ import android.telephony.gsm.GsmCellLocation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.lang.reflect.Method;
+
 public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
     TelephonyManager telephonyManager;
     MyPhoneStateListener MyListener;
     Activity activity;
     int signalLevel;
     int signalStrengthASU;
-    int signalStrengthRSSI;
+    int signalStrengthDBM;
 
 
     public MainCellAsyncTask(Activity activity) {
@@ -67,30 +69,54 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
             super.onSignalStrengthsChanged(signalStrength);
 
-            signalStrengthASU = signalStrength.getGsmSignalStrength();
-            signalStrengthRSSI = CellInfoUtils.ASUToRSSI(signalStrengthASU, telephonyManager.getNetworkType());
+            System.out.println(signalStrength);
+
+            if (telephonyManager.getNetworkType() == TelephonyManager.NETWORK_TYPE_LTE) {
+                try {
+                    Class cSignalStrength = Class.forName("android.telephony.SignalStrength");
+                    Method mGetLteAsuLevel = cSignalStrength.getMethod("getLteAsuLevel");
+                    Method mGetLteDbm = cSignalStrength.getMethod("getLteDbm");
+                    signalStrengthASU = (int) mGetLteAsuLevel.invoke(signalStrength);
+                    signalStrengthDBM = (int) mGetLteDbm.invoke(signalStrength);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                signalStrengthASU = signalStrength.getGsmSignalStrength();
+                signalStrengthDBM = CellInfoUtils.ASUToRSSI(signalStrengthASU, telephonyManager.getNetworkType());
+            }
+
             signalLevel = signalStrength.getLevel();
+            // disconnected, no signal
+            if (signalStrengthASU == 0) {
+                signalLevel = -1;
+            }
         }
 
     }
 
     public void refreshMainCell() {
         GsmCellLocation cellLocation = (GsmCellLocation) telephonyManager.getCellLocation();
-        // cell id
-        int cid = cellLocation.getCid();
-        // location area code
-        int lac = cellLocation.getLac();
 
+        int cid = -1, lac = -1, psc = -1;
+        if (cellLocation != null) {
+            // cell id
+            cid = cellLocation.getCid();
+            // location area code
+            lac = cellLocation.getLac();
+            psc = cellLocation.getPsc();
+        }
         String networkOperator = telephonyManager.getNetworkOperator();
         int mccNo = -1;
         String mccName = "N/A";
-        String mnc = "N/A";
-        if (networkOperator.length() > 3) {
+        int mnc = -1;
+        String mncName = telephonyManager.getNetworkOperatorName();
+        if (networkOperator != null && networkOperator.length() > 3) {
             // mobile country code
             mccNo = new Integer(networkOperator.substring(0, 3));
             mccName = telephonyManager.getNetworkCountryIso().toUpperCase();
             // mobile network code
-            mnc = networkOperator.substring(3);
+            mnc = new Integer(networkOperator.substring(3));
         }
 
         // cell type (EDGE, UMTS, LTE, ...
@@ -101,20 +127,26 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
 
         String mainCellInfo = "Cell ID: " + (cid == -1 ? "N/A" : cid) + "\n" +
                 "Cell Type: " + (cellTypeNo == -1 ? "N/A" : cellTypeName + " (" + cellTypeNo + ")") + "\n" +
-                "Mobile Country Code: " + (mccNo == -1 ? "N/A" : mccName + " (" + mccNo + ")") +"\n" +
-                "LAC: " + lac + "\n" +
-                "MNC: " + mnc;
+                "Mobile Country Code: " + (mccNo == -1 ? "N/A" : mccName + " (" + mccNo + ")") + "\n" +
+                "Mobile Network Operator: " + (mnc == -1 ? "N/A" : mncName + " (" + mnc + ")") + "\n" +
+                "Local Area Code: " + (lac == -1 ? "N/A" : lac) + "\n" +
+                "Primary Scrambling Code: " + (psc == -1 ? "N/A" : psc);
+
 
         mainCellText.setText(mainCellInfo);
 
         // refresh signal strength text view
         TextView signalText = (TextView) activity.findViewById(R.id.mainCellSignalStrenghtText);
         signalText.setText(signalStrengthASU + " ASU\n" +
-                signalStrengthRSSI + " dBm");
+                signalStrengthDBM + " dBm");
 
         ImageView image = (ImageView) activity.findViewById(R.id.mainCellSignalStrengthImage);
 
         switch (signalLevel) {
+            // no signal
+            case -1:
+                image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_off_black_24dp));
+                break;
             // poor quality
             case 0:
                 image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_0_bar_black_24dp));
