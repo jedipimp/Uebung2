@@ -129,7 +129,7 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
                 "Cell Type: " + (cellTypeNo == -1 ? "N/A" : cellTypeName + " (" + cellTypeNo + ")") + "\n" +
                 "Mobile Country Code: " + (mccNo == -1 ? "N/A" : mccName + " (" + mccNo + ")") + "\n" +
                 "Mobile Network Operator: " + (mnc == -1 ? "N/A" : mncName + " (" + mnc + ")") + "\n" +
-                "Local Area Code: " + (lac == -1 ? "N/A" : lac) + "\n" +
+                "Location Area Code: " + (lac == -1 ? "N/A" : lac) + "\n" +
                 "Primary Scrambling Code: " + (psc == -1 ? "N/A" : psc);
 
 
