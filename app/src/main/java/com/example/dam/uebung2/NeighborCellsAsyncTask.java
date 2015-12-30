@@ -76,7 +76,7 @@ public class NeighborCellsAsyncTask extends AsyncTask<String, Void, String> {
         // get all neighnoring cells
         List<CellInfo> allCellInfos = telephonyManager.getAllCellInfo();
 
-        if (allCellInfos.size() > 0) {
+        if (allCellInfos != null && allCellInfos.size() > 0) {
             for (CellInfo ci : allCellInfos) {
                 // skip active cell, use only neighbor cells
                 if (ci.isRegistered())
