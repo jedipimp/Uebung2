@@ -122,7 +122,7 @@ public class NeighborCellsAsyncTask extends AsyncTask<String, Void, String> {
                     mnc = cellIdentityGsm.getMnc();
                     mcc = cellIdentityGsm.getMcc();
                     lac = cellIdentityGsm.getLac();
-                    psc = -1; // undefined for GSM
+                    psc = Integer.MAX_VALUE; // undefined for GSM
                     cellType = "GSM"; // GSM
                     signalStrength = ciGsm.getCellSignalStrength();
                 } else if (ci instanceof CellInfoCdma) {
@@ -134,12 +134,14 @@ public class NeighborCellsAsyncTask extends AsyncTask<String, Void, String> {
                         "Mobile Country Code: " + (mcc == Integer.MAX_VALUE ? "N/A" : mcc) + "\n" +
                         "Mobile Network Operator: " + (mnc == Integer.MAX_VALUE ? "N/A" : mnc) + "\n";
 
-                if (cellType.equals("LTE"))
-                    neighboringCellText += "Physical Cell ID: " + (pci == Integer.MAX_VALUE ? "N/A" : pci) + "\n"+
+                if (cellType.equals("LTE")) {
+                    neighboringCellText += "Physical Cell ID: " + (pci == Integer.MAX_VALUE ? "N/A" : pci) + "\n" +
                             "Tracking Area Code: " + (tac == Integer.MAX_VALUE ? "N/A" : tac);
-                else
-                    neighboringCellText += "Location Area Code: " + (lac == Integer.MAX_VALUE ? "N/A" : lac) + "\n" +
-                        "Primary Scrambling Code: " + (psc == Integer.MAX_VALUE ? "N/A" : psc);
+                } else {
+                    neighboringCellText += "Location Area Code: " + (lac == Integer.MAX_VALUE ? "N/A" : lac);
+                    if (cellType.equals("UMTS"))
+                        neighboringCellText += "\nPrimary Scrambling Code: " + (psc == Integer.MAX_VALUE ? "N/A" : psc);
+                }
 
                 Pair<String, CellSignalStrength> pair = new Pair<String, CellSignalStrength>(neighboringCellText, signalStrength);
                 listItems.add(pair);
