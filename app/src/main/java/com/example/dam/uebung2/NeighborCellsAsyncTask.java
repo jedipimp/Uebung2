@@ -32,14 +32,16 @@ public class NeighborCellsAsyncTask extends AsyncTask<String, Void, String> {
         // infinite LOOP
         while (true) {
             try {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        refreshNeighborCells();
-                    }
-                });
+                if (CellInfoUtils.getRefreshRateInSec() != -1) {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshNeighborCells();
+                        }
+                    });
 
-                Thread.sleep(5000);
+                    Thread.sleep(CellInfoUtils.getRefreshRateInSec() * 1000);
+                }
             } catch (InterruptedException e) {
                 Thread.interrupted();
             }
@@ -71,7 +73,8 @@ public class NeighborCellsAsyncTask extends AsyncTask<String, Void, String> {
                 // cell id (-1 if unknown)
                 int cid = neighboringCellInfo.getCid();
                 // cell type (2 for EDGE, 3 for UMTS, 13 for LTE, 0 for unknown)
-                int cellTypeInt = neighboringCellInfo.getNetworkType();
+                int cellTypeNo = neighboringCellInfo.getNetworkType();
+                String cellTypeName = CellInfoUtils.getCellTypeName(cellTypeNo);
                 // location area code (-1 if unknown)
                 int lac = neighboringCellInfo.getLac();
                 // Receive Signal Strength Indicator (range -100..0, closer to 0 means better signal quality)
@@ -80,7 +83,7 @@ public class NeighborCellsAsyncTask extends AsyncTask<String, Void, String> {
                 int psc = neighboringCellInfo.getPsc();
 
                 String neighborCellInfo = "Cell ID: " + (cid == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : cid) + "\n" +
-                        "Cell Type: " + (cellTypeInt == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : cellTypeInt) + "\n" +
+                        "Cell Type: " + (cellTypeNo == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : cellTypeName + " (" + cellTypeNo + ")") + "\n" +
                         "LAC: " + (lac == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : lac) + "\n" +
                         "PSC: " + (psc == NeighboringCellInfo.UNKNOWN_CID ? "N/A" : psc);
 

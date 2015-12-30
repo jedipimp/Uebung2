@@ -2,16 +2,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.dam.uebung2.MainActivity">
+
+    <item android:id="@+id/spinner"
+        android:title="5min"
+        app:actionViewClass="android.widget.Spinner"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/action_refresh"
         android:icon="@android:drawable/stat_notify_sync"
         android:orderInCategory="100"
         android:title="@string/action_refresh"
         app:showAsAction="always" />
-    <!--<item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
--->
+
 </menu>
