@@ -12,8 +12,6 @@ import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellInfoWcdma;
 import android.telephony.CellSignalStrength;
-import android.telephony.CellSignalStrengthWcdma;
-import android.telephony.NeighboringCellInfo;
 import android.telephony.TelephonyManager;
 import android.util.Pair;
 import android.widget.ListView;

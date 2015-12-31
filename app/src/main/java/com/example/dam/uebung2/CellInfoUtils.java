@@ -31,8 +31,20 @@ public class CellInfoUtils {
         return -1;
     }
 
-    public static int DBMToASU(int dbm) {
-        return (dbm + 113) / 2;
+    public static int RSSIToASU(int dbm, int cellType) {
+        switch (cellType) {
+            case TelephonyManager.NETWORK_TYPE_LTE:
+                return dbm + 120;
+            case TelephonyManager.NETWORK_TYPE_UMTS:
+            case TelephonyManager.NETWORK_TYPE_EDGE:
+            case TelephonyManager.NETWORK_TYPE_GPRS:
+            case TelephonyManager.NETWORK_TYPE_HSPA:
+            case TelephonyManager.NETWORK_TYPE_HSDPA:
+            case TelephonyManager.NETWORK_TYPE_HSPAP:
+                return (dbm + 113) / 2;
+        }
+
+        return -1;
     }
 
     public static int getSignalLevelFromRSSI(int rssi) {

@@ -1,6 +1,5 @@
 package com.example.dam.uebung2;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -62,9 +61,8 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
     protected void onProgressUpdate(Void... values) {
     }
 
-    @TargetApi(value = 23)
     private class MyPhoneStateListener extends PhoneStateListener {
-        /* Get the Signal strength from the provider, each tiome there is an update */
+        /* Get the Signal strength from the provider, each time there is an update */
         @Override
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
             super.onSignalStrengthsChanged(signalStrength);
@@ -84,9 +82,19 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
             } else {
                 signalStrengthASU = signalStrength.getGsmSignalStrength();
                 signalStrengthDBM = CellInfoUtils.ASUToRSSI(signalStrengthASU, telephonyManager.getNetworkType());
+
+                if (signalStrengthASU == 0) {
+                    signalStrengthDBM = new Integer(signalStrength.toString().split(" ")[3]);
+                    signalStrengthASU = CellInfoUtils.RSSIToASU(signalStrengthDBM, telephonyManager.getNetworkType());
+                }
+                // swap ASU with DBM
+                else if (signalStrengthASU < 0) {
+                    signalStrengthDBM = signalStrengthASU;
+                    signalStrengthASU = CellInfoUtils.RSSIToASU(signalStrengthDBM, telephonyManager.getNetworkType());
+                }
             }
 
-            signalLevel = signalStrength.getLevel();
+            signalLevel = CellInfoUtils.getSignalLevelFromRSSI(signalStrengthDBM);
             // disconnected, no signal
             if (signalStrengthASU == 0) {
                 signalLevel = -1;
