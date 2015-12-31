@@ -7,16 +7,19 @@ import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.dam.uebung2.MainActivity;
-import com.example.dam.uebung2.R;
+import java.lang.reflect.Method;
 
 public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
     TelephonyManager telephonyManager;
     MyPhoneStateListener MyListener;
     Activity activity;
+    int signalLevel;
+    int signalStrengthASU;
+    int signalStrengthDBM;
+
 
     public MainCellAsyncTask(Activity activity) {
         this.activity = activity;
@@ -28,14 +31,16 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
         while (true) {
             try {
 
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        refreshMainCell();
-                    }
-                });
+                if (CellInfoUtils.getRefreshRateInSec() != -1) {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshMainCell();
+                        }
+                    });
 
-                Thread.sleep(5000);
+                    Thread.sleep(CellInfoUtils.getRefreshRateInSec() * 1000);
+                }
 
             } catch (InterruptedException e) {
                 Thread.interrupted();
@@ -57,40 +62,117 @@ public class MainCellAsyncTask extends AsyncTask<String, Void, String> {
     }
 
     private class MyPhoneStateListener extends PhoneStateListener {
-        /* Get the Signal strength from the provider, each tiome there is an update */
+        /* Get the Signal strength from the provider, each time there is an update */
         @Override
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
             super.onSignalStrengthsChanged(signalStrength);
-            TextView temp = (TextView) activity.findViewById(R.id.signalStrenghtTextView);
-            temp.setText(String.valueOf(signalStrength.getGsmSignalStrength()));
+
+            System.out.println(signalStrength);
+
+            if (telephonyManager.getNetworkType() == TelephonyManager.NETWORK_TYPE_LTE) {
+                try {
+                    Class cSignalStrength = Class.forName("android.telephony.SignalStrength");
+                    Method mGetLteAsuLevel = cSignalStrength.getMethod("getLteAsuLevel");
+                    Method mGetLteDbm = cSignalStrength.getMethod("getLteDbm");
+                    signalStrengthASU = (int) mGetLteAsuLevel.invoke(signalStrength);
+                    signalStrengthDBM = (int) mGetLteDbm.invoke(signalStrength);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                signalStrengthASU = signalStrength.getGsmSignalStrength();
+                signalStrengthDBM = CellInfoUtils.ASUToRSSI(signalStrengthASU, telephonyManager.getNetworkType());
+
+                if (signalStrengthASU == 0) {
+                    signalStrengthDBM = new Integer(signalStrength.toString().split(" ")[3]);
+                    signalStrengthASU = CellInfoUtils.RSSIToASU(signalStrengthDBM, telephonyManager.getNetworkType());
+                }
+                // swap ASU with DBM
+                else if (signalStrengthASU < 0) {
+                    signalStrengthDBM = signalStrengthASU;
+                    signalStrengthASU = CellInfoUtils.RSSIToASU(signalStrengthDBM, telephonyManager.getNetworkType());
+                }
+            }
+
+            signalLevel = CellInfoUtils.getSignalLevelFromRSSI(signalStrengthDBM);
+            // disconnected, no signal
+            if (signalStrengthASU == 0) {
+                signalLevel = -1;
+            }
         }
 
     }
 
-
-
-    private void refreshMainCell() {
+    public void refreshMainCell() {
         GsmCellLocation cellLocation = (GsmCellLocation) telephonyManager.getCellLocation();
 
+        int cid = -1, lac = -1, psc = -1;
+        if (cellLocation != null) {
+            // cell id
+            cid = cellLocation.getCid();
+            // location area code
+            lac = cellLocation.getLac();
+            psc = cellLocation.getPsc();
+        }
         String networkOperator = telephonyManager.getNetworkOperator();
-        String mcc = networkOperator.substring(0, 3);
-        String mnc = networkOperator.substring(3);
+        int mccNo = -1;
+        String mccName = "N/A";
+        int mnc = -1;
+        String mncName = telephonyManager.getNetworkOperatorName();
+        if (networkOperator != null && networkOperator.length() > 3) {
+            // mobile country code
+            mccNo = new Integer(networkOperator.substring(0, 3));
+            mccName = telephonyManager.getNetworkCountryIso().toUpperCase();
+            // mobile network code
+            mnc = new Integer(networkOperator.substring(3));
+        }
 
-        int cid = cellLocation.getCid();
-        int lac = cellLocation.getLac();
+        // cell type (EDGE, UMTS, LTE, ...
+        int cellTypeNo = telephonyManager.getNetworkType();
+        String cellTypeName = CellInfoUtils.getCellTypeName(cellTypeNo);
+
+        TextView mainCellText = (TextView) activity.findViewById(R.id.mainCellIdText);
+
+        String mainCellInfo = "Cell ID: " + (cid == -1 ? "N/A" : cid) + "\n" +
+                "Cell Type: " + (cellTypeNo == -1 ? "N/A" : cellTypeName + " (" + cellTypeNo + ")") + "\n" +
+                "Mobile Country Code: " + (mccNo == -1 ? "N/A" : mccName + " (" + mccNo + ")") + "\n" +
+                "Mobile Network Operator: " + (mnc == -1 ? "N/A" : mncName + " (" + mnc + ")") + "\n" +
+                "Location Area Code: " + (lac == -1 ? "N/A" : lac) + "\n" +
+                "Primary Scrambling Code: " + (psc == -1 ? "N/A" : psc);
 
 
-        Button myButton = (Button) activity.findViewById(R.id.mainCellButton);
+        mainCellText.setText(mainCellInfo);
 
-        String displayText = "Main Cell ID is  " + cid + "\n" +
-                "Cell Type : " + telephonyManager.getNetworkType() + "\n" + // 2 for umts 3 for something else
-                "Mobile Country Code :" + telephonyManager.getNetworkCountryIso() + "\n" +
-                "LAC : " + lac + "\n" +
-                "MCC: " + mcc + "\n" +
-                "MNC " + mnc;
+        // refresh signal strength text view
+        TextView signalText = (TextView) activity.findViewById(R.id.mainCellSignalStrenghtText);
+        signalText.setText(signalStrengthASU + " ASU\n" +
+                signalStrengthDBM + " dBm");
 
-        System.out.println("updated main cell!");
-        myButton.setText(displayText);
+        ImageView image = (ImageView) activity.findViewById(R.id.mainCellSignalStrengthImage);
+
+        switch (signalLevel) {
+            // no signal
+            case -1:
+                image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_off_black_24dp));
+                break;
+            // poor quality
+            case 0:
+                image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_0_bar_black_24dp));
+                break;
+            case 1:
+                image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_1_bar_black_24dp));
+                break;
+            case 2:
+                image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_2_bar_black_24dp));
+                break;
+            case 3:
+                image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_3_bar_black_24dp));
+                break;
+            // excellent quality
+            case 4:
+                image.setImageDrawable(activity.getResources().getDrawable(R.mipmap.ic_signal_cellular_4_bar_black_24dp));
+                break;
+        }
     }
 
 }

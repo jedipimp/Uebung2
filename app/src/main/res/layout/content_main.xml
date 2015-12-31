@@ -12,53 +12,88 @@
     tools:context="com.example.dam.uebung2.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/linearLayout">
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="47dp"
-            android:weightSum="1">
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/linearLayout">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Medium Text"
-                android:id="@+id/signalStrenghtTextView" />
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="61dp"
-                android:id="@+id/imageView"
-                android:src="@mipmap/ic_signal_cellular_0_bar_black_24dp" />
-        </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Übung 2"
-            android:id="@+id/titleTextView"
-            android:layout_gravity="center_horizontal" />
+             <TextView
+                    android:id="@+id/active_cell"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:textSize="22dp"
+                    android:text="Active:"/>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New Button"
-            android:id="@+id/mainCellButton" />
+             <TableLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="120dp"
+                    android:stretchColumns="1"
+                    android:layout_marginLeft="10dp">
 
-        <ListView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/neighboringCellsListView" />
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp">
 
-    </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="New Text"
+                            android:id="@+id/mainCellIdText" />
 
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="right">
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="24dp"
+                                android:id="@+id/mainCellSignalStrengthImage"
+                                android:src="@mipmap/ic_signal_cellular_0_bar_black_24dp"
+                                android:layout_gravity="end"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Text"
+                                android:id="@+id/mainCellSignalStrenghtText"
+                                android:layout_gravity="end"
+                                android:textAlignment="textEnd"/>
+
+                        </LinearLayout>
+                    </TableRow>
+                </TableLayout>
+
+                <TextView
+                    android:id="@+id/neighbor_cells"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:textSize="22dp"
+                    android:text="Neighbors:"/>
+
+
+
+                    <ListView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/neighboringCellsListView"
+                        android:layout_marginLeft="10dp"/>
+            </LinearLayout>
+        </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>
